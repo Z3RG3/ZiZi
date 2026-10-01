@@ -1,0 +1,3 @@
+# ZiZi
+ ƶiƶi is the intuitive progress tracker, named after the famous Festek tusszento - Beno.
+More soon...
