@@ -4,4 +4,4 @@ More soon...
 
 https://www.youtube.com/watch?v=NPXWa5dCcfE
 
-![Showcase](relative%20path/to/img.jpg?raw=true "Title")
+![Showcase example](./showcase.png)
