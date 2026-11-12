@@ -1,122 +1,114 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useState, useEffect } from 'react';
+import {
+  calculateTotalSquares,
+  calculateGridDimensions,
+  calculateSquaresToEstimate,
+} from './utils/gridUtils';
+import GridCalculator from './components/GridCalculator';
+import ColorLegend from './components/ColorLegend';
+import WorkingGrid from './components/WorkingGrid';
 
-function App() {
-  const [count, setCount] = useState(0)
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+const STORAGE_KEY = 'grid_tracker_data_v1';
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+function getCurrentWeekNumber() {
+  const now = new Date();
+  const startOfYear = new Date(now.getFullYear(), 0, 1);
+  const pastDays = Math.floor((now - startOfYear) / (24 * 60 * 60 * 1000));
+  return Math.ceil((pastDays + startOfYear.getDay() + 1) / 7);
 }
 
-export default App
+const DEFAULT_TASKS = [
+  { id: 't1', name: 'WorkOut', color: '#ae3bf6' },
+  { id: 't2', name: 'Self projects', color: '#11bd84' },
+  { id: 't3', name: 'Study/reading', color: '#f59e0b' },
+];
+
+const DEFAULT_STATE = {
+  title: `Week #${getCurrentWeekNumber()}`,
+  totalHours: 16, // Number: used to calculate total grid squares
+  unitSize: 10,   // Number: 10 mins per square
+  tasks: DEFAULT_TASKS,
+  activeTaskId: DEFAULT_TASKS[0].id, // Defaults to 't1'
+  gridState: {},  // Map of { squareIndex: taskId }, e.g., { 0: 't1', 5: 't2' }
+};
+
+// lazy load : loads once, saves that and only adjusts that with merging 
+function loadSavedState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) { // merge with DEFAULT_STATE so new properties never break old saves
+      return { ...DEFAULT_STATE, ...JSON.parse(saved) };
+    }
+  } catch (err) {
+    console.error('Failed to load grid state from localStorage:', err);
+  }
+  return DEFAULT_STATE;
+}
+
+export default function App() {
+  // Pass the function reference to useState for lazy loading
+  const [tracker, setTracker] = useState(loadSavedState);
+
+  // AUTO-SAVE: any time tracker changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tracker));
+    } catch (err) {
+      console.error('Failed to save grid state:', err);
+    }
+  }, [tracker]);
+
+  // derived values - gridUtils.js
+  const totalSquares = calculateTotalSquares(tracker.totalHours, tracker.unitSize);
+  const { cols, rows } = calculateGridDimensions(totalSquares);
+  
+  const filledSquaresCount = Object.keys(tracker.gridState).length;
+  const formattedTotalTime = calculateSquaresToEstimate(totalSquares, tracker.unitSize);
+  const formattedLoggedTime = calculateSquaresToEstimate(filledSquaresCount, tracker.unitSize);
+
+  const updateTracker = (updates) => {
+    setTracker((prev) => ({ ...prev, ...updates }));
+  };
+
+  return (
+    <div className="app-container" style={{ padding: '30px', fontFamily: 'sans-serif', maxWidth: '800px', margin: '0 auto' }}>
+    <h1>{tracker.title}</h1>
+    <p>
+      Logged: <strong>{formattedLoggedTime}</strong> / {formattedTotalTime} ({cols}x{rows} grid)
+    </p>
+
+    {/* Calculator Input Component */}
+    <GridCalculator 
+      totalHours={tracker.totalHours} 
+      unitSize={tracker.unitSize} 
+      onUpdate={updateTracker} 
+    />
+
+    {/* Task Color Legend Component */}
+    <ColorLegend 
+      tasks={tracker.tasks} 
+      activeTaskId={tracker.activeTaskId} 
+      onSelectTask={(id) => updateTracker({ activeTaskId: id })} 
+    />
+
+    {/* Main Working Grid Component */}
+    <WorkingGrid 
+      totalSquares={totalSquares}
+      cols={cols}
+      gridState={tracker.gridState}
+      tasks={tracker.tasks}
+      activeTaskId={tracker.activeTaskId}
+      onSquareClick={(index) => {
+        const newGridState = { ...tracker.gridState };
+        if (newGridState[index] === tracker.activeTaskId) {
+          delete newGridState[index];
+        } else {
+          newGridState[index] = tracker.activeTaskId;
+        }
+        updateTracker({ gridState: newGridState });
+      }}
+    />
+  </div>
+  );
+}
