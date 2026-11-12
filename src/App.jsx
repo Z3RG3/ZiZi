@@ -8,7 +8,6 @@ import GridCalculator from './components/GridCalculator';
 import ColorLegend from './components/ColorLegend';
 import WorkingGrid from './components/WorkingGrid';
 
-
 const STORAGE_KEY = 'grid_tracker_data_v1';
 
 function getCurrentWeekNumber() {
@@ -26,18 +25,17 @@ const DEFAULT_TASKS = [
 
 const DEFAULT_STATE = {
   title: `Week #${getCurrentWeekNumber()}`,
-  totalHours: 16, // Number: used to calculate total grid squares
-  unitSize: 10,   // Number: 10 mins per square
+  totalHours: 16,
+  unitSize: 10,
   tasks: DEFAULT_TASKS,
-  activeTaskId: DEFAULT_TASKS[0].id, // Defaults to 't1'
-  gridState: {},  // Map of { squareIndex: taskId }, e.g., { 0: 't1', 5: 't2' }
+  activeTaskId: DEFAULT_TASKS[0].id,
+  gridState: {},
 };
 
-// lazy load : loads once, saves that and only adjusts that with merging 
 function loadSavedState() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) { // merge with DEFAULT_STATE so new properties never break old saves
+    if (saved) {
       return { ...DEFAULT_STATE, ...JSON.parse(saved) };
     }
   } catch (err) {
@@ -47,8 +45,8 @@ function loadSavedState() {
 }
 
 export default function App() {
-  // Pass the function reference to useState for lazy loading
   const [tracker, setTracker] = useState(loadSavedState);
+  const [modalMode, setModalMode] = useState(null); // null | 'new' | 'adjust'
 
   // AUTO-SAVE: any time tracker changes
   useEffect(() => {
@@ -59,12 +57,13 @@ export default function App() {
     }
   }, [tracker]);
 
-  // derived values - gridUtils.js
+  // Derived values - gridUtils.js & Rectangular Grid calculations
   const totalSquares = calculateTotalSquares(tracker.totalHours, tracker.unitSize);
   const { cols, rows } = calculateGridDimensions(totalSquares);
-  
+  const rectangularTotalSquares = cols * rows;
+
   const filledSquaresCount = Object.keys(tracker.gridState).length;
-  const formattedTotalTime = calculateSquaresToEstimate(totalSquares, tracker.unitSize);
+  const formattedTotalTime = calculateSquaresToEstimate(rectangularTotalSquares, tracker.unitSize);
   const formattedLoggedTime = calculateSquaresToEstimate(filledSquaresCount, tracker.unitSize);
 
   const updateTracker = (updates) => {
@@ -72,43 +71,88 @@ export default function App() {
   };
 
   return (
-    <div className="app-container" style={{ padding: '30px', fontFamily: 'sans-serif', maxWidth: '800px', margin: '0 auto' }}>
-    <h1>{tracker.title}</h1>
-    <p>
-      Logged: <strong>{formattedLoggedTime}</strong> / {formattedTotalTime} ({cols}x{rows} grid)
-    </p>
+    <div className="app-container" style={{ padding: '30px', fontFamily: 'sans-serif', maxWidth: '800px', margin: '0 auto', color: '#f8fafc' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h1 style={{ margin: '0 0 6px 0' }}>{tracker.title}</h1>
+          <p style={{ margin: 0, color: '#cbd5e1' }}>
+            Logged: <strong>{formattedLoggedTime}</strong> / {formattedTotalTime} ({cols}x{rows} grid)
+          </p>
+        </div>
 
-    {/* Calculator Input Component */}
-    <GridCalculator 
-      totalHours={tracker.totalHours} 
-      unitSize={tracker.unitSize} 
-      onUpdate={updateTracker} 
-    />
+        {/* Pop-up Trigger Buttons */}
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button
+            onClick={() => setModalMode('adjust')}
+            style={{ padding: '8px 14px', borderRadius: '8px', border: '1px solid #475569', background: '#1e293b', color: '#fff', cursor: 'pointer' }}
+          >
+            Adjust
+          </button>
+          <button
+            onClick={() => setModalMode('new')}
+            style={{ padding: '8px 14px', borderRadius: '8px', border: 'none', background: '#11bd84', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}
+          >
+            + New
+          </button>
+        </div>
+      </div>
 
-    {/* Task Color Legend Component */}
-    <ColorLegend 
-      tasks={tracker.tasks} 
-      activeTaskId={tracker.activeTaskId} 
-      onSelectTask={(id) => updateTracker({ activeTaskId: id })} 
-    />
+      {/* Pop-up Calculator Modal */}
+      {modalMode && (
+        <GridCalculator
+          mode={modalMode}
+          currentTitle={tracker.title}
+          currentHours={tracker.totalHours}
+          currentUnitSize={tracker.unitSize}
+          onClose={() => setModalMode(null)}
+          onSave={({ title, totalHours, unitSize, resetGrid }) => {
+            updateTracker({
+              title,
+              totalHours,
+              unitSize,
+              ...(resetGrid ? { gridState: {} } : {}),
+            });
+            setModalMode(null);
+          }}
+        />
+      )}
 
-    {/* Main Working Grid Component */}
-    <WorkingGrid 
-      totalSquares={totalSquares}
-      cols={cols}
-      gridState={tracker.gridState}
-      tasks={tracker.tasks}
-      activeTaskId={tracker.activeTaskId}
-      onSquareClick={(index) => {
-        const newGridState = { ...tracker.gridState };
-        if (newGridState[index] === tracker.activeTaskId) {
-          delete newGridState[index];
-        } else {
-          newGridState[index] = tracker.activeTaskId;
-        }
-        updateTracker({ gridState: newGridState });
-      }}
-    />
-  </div>
+      {/* Color Legend with Double-Click Color Picker & (+) Add Task */}
+      <ColorLegend
+        tasks={tracker.tasks}
+        activeTaskId={tracker.activeTaskId}
+        onSelectTask={(id) => updateTracker({ activeTaskId: id })}
+        onUpdateTaskColor={(taskId, newColor) => {
+          const updatedTasks = tracker.tasks.map((t) =>
+            t.id === taskId ? { ...t, color: newColor } : t
+          );
+          updateTracker({ tasks: updatedTasks });
+        }}
+        onAddTask={(newTask) => {
+          updateTracker({
+            tasks: [...tracker.tasks, newTask],
+            activeTaskId: newTask.id,
+          });
+        }}
+      />
+
+      {/* Strictly Rectangular Working Grid */}
+      <WorkingGrid
+        cols={cols}
+        rows={rows}
+        gridState={tracker.gridState}
+        tasks={tracker.tasks}
+        activeTaskId={tracker.activeTaskId}
+        onSquareClick={(index) => {
+          const newGridState = { ...tracker.gridState };
+          if (newGridState[index] === tracker.activeTaskId) {
+            delete newGridState[index];
+          } else {
+            newGridState[index] = tracker.activeTaskId;
+          }
+          updateTracker({ gridState: newGridState });
+        }}
+      />
+    </div>
   );
 }

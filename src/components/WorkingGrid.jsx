@@ -1,6 +1,7 @@
-export default function WorkingGrid({ totalSquares, cols, gridState, tasks, activeTaskId, onSquareClick }) {
-  const squares = Array.from({ length: totalSquares }, (_, index) => index);
-
+export default function WorkingGrid({ cols, rows, gridState, tasks, activeTaskId, onSquareClick }) {
+    const rectangularTotal = cols * rows;
+    const squares = Array.from({ length: rectangularTotal }, (_, index) => index);
+  
   const getTaskColor = (taskId) => {
     const task = tasks.find((t) => t.id === taskId);
     return task ? task.color : '#f1f5f9'; // Soft paper-like empty color
@@ -35,6 +36,10 @@ export default function WorkingGrid({ totalSquares, cols, gridState, tasks, acti
               backgroundColor: backgroundColor,
               border: assignedTaskId ? 'none' : '1px dashed #cbd5e1', // Dashed border for empty notebook squares!
               borderRadius: '4px',
+                /* TODO: Custom abstract fill shapes (blob, circle, organic squircle)
+                    We can map each square index to a deterministic or random preset:
+                    e.g., borderRadius: assignedTaskId ? getRandomBlobRadius(index) : '4px'
+                    or render an inline <svg> shape inside the button when assignedTaskId is truthy */
               cursor: 'pointer',
               transition: 'transform 0.1s ease, background-color 0.1s ease',
             }}
