@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-export default function ColorLegend({ tasks, activeTaskId, onSelectTask, onUpdateTaskColor, onAddTask }) {
-  const [editingColorId, setEditingColorId] = useState(null);
+export default function ColorLegend({ tasks, activeTaskId, onSelectTask, onUpdateTask, onDeleteTask, onAddTask }) {
+  const [editingTaskId, setEditingTaskId] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
   const [newTaskName, setNewTaskName] = useState('');
 
@@ -25,36 +25,60 @@ export default function ColorLegend({ tasks, activeTaskId, onSelectTask, onUpdat
     <div style={{ display: 'flex', gap: '12px', margin: '20px 0', flexWrap: 'wrap', alignItems: 'center' }}>
       {tasks.map((task) => {
         const isActive = task.id === activeTaskId;
-        const isPickingColor = editingColorId === task.id;
+        const isEditing = editingTaskId === task.id;
 
         return (
           <div key={task.id} style={{ position: 'relative' }}>
-            {/* Floating color picker above the pill on double-click */}
-            {isPickingColor && (
+            {/* Double-click popup editor for Rename, Color, & Delete ( [X] ) */}
+            {isEditing && (
               <div style={{
-                position: 'absolute', bottom: '120%', left: '50%', transform: 'translateX(-50%)',
-                background: '#1e293b', padding: '6px', borderRadius: '8px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.4)', display: 'flex', gap: '6px', alignItems: 'center', zIndex: 10
+                position: 'absolute', bottom: '125%', left: '50%', transform: 'translateX(-50%)',
+                background: '#1e293b', padding: '10px', borderRadius: '10px',
+                boxShadow: '0 10px 25px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 20,
+                border: '1px solid #475569', width: '180px'
               }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 'bold' }}>Edit Task</span>
+                  <button
+                    onClick={() => {
+                      onDeleteTask(task.id);
+                      setEditingTaskId(null);
+                    }}
+                    title="Delete task"
+                    style={{ background: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', width: '20px', height: '20px', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    ✕
+                  </button>
+                </div>
+
                 <input
-                  type="color"
-                  value={task.color}
-                  onChange={(e) => onUpdateTaskColor(task.id, e.target.value)}
-                  style={{ width: '32px', height: '28px', border: 'none', background: 'none', cursor: 'pointer' }}
+                  type="text"
+                  value={task.name}
+                  onChange={(e) => onUpdateTask(task.id, { name: e.target.value })}
+                  style={{ padding: '4px 6px', borderRadius: '4px', border: '1px solid #475569', background: '#0f172a', color: '#fff', fontSize: '13px', outline: 'none' }}
                 />
-                <button
-                  onClick={() => setEditingColorId(null)}
-                  style={{ background: '#334155', color: '#fff', border: 'none', borderRadius: '4px', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}
-                >
-                  Done
-                </button>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <input
+                    type="color"
+                    value={task.color}
+                    onChange={(e) => onUpdateTask(task.id, { color: e.target.value })}
+                    style={{ width: '36px', height: '24px', border: 'none', background: 'none', cursor: 'pointer' }}
+                  />
+                  <button
+                    onClick={() => setEditingTaskId(null)}
+                    style={{ background: '#334155', color: '#fff', border: 'none', borderRadius: '4px', padding: '3px 8px', fontSize: '12px', cursor: 'pointer' }}
+                  >
+                    Done
+                  </button>
+                </div>
               </div>
             )}
 
             <button
               onClick={() => onSelectTask(task.id)}
-              onDoubleClick={() => setEditingColorId(isPickingColor ? null : task.id)}
-              title="Click to select, double-click to change color"
+              onDoubleClick={() => setEditingTaskId(isEditing ? null : task.id)}
+              title="Click to select, double-click to rename/recolor/delete"
               style={{
                 display: 'flex', alignItems: 'center', gap: '8px',
                 backgroundColor: isActive ? '#fff' : '#f1f5f9',
@@ -73,7 +97,7 @@ export default function ColorLegend({ tasks, activeTaskId, onSelectTask, onUpdat
         );
       })}
 
-      {/* (+) Add Task Button / Inline Input */}
+      {/* (+) Add Task Button */}
       {isAdding ? (
         <form onSubmit={handleCreateTask} style={{ display: 'flex', gap: '6px' }}>
           <input
@@ -85,7 +109,7 @@ export default function ColorLegend({ tasks, activeTaskId, onSelectTask, onUpdat
             onBlur={handleCreateTask}
             style={{
               padding: '6px 12px', borderRadius: '20px', border: '2px solid #11bd84',
-              outline: 'none', fontSize: '14px', width: '130px'
+              outline: 'none', fontSize: '14px', width: '130px', background: '#fff', color: '#1e293b'
             }}
           />
         </form>

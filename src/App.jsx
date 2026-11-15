@@ -122,11 +122,31 @@ export default function App() {
         tasks={tracker.tasks}
         activeTaskId={tracker.activeTaskId}
         onSelectTask={(id) => updateTracker({ activeTaskId: id })}
-        onUpdateTaskColor={(taskId, newColor) => {
+        onUpdateTask={(taskId, updatedFields) => {
           const updatedTasks = tracker.tasks.map((t) =>
-            t.id === taskId ? { ...t, color: newColor } : t
+            t.id === taskId ? { ...t, ...updatedFields } : t
           );
           updateTracker({ tasks: updatedTasks });
+        }}
+        onDeleteTask={(taskId) => {
+          // Prevent deleting if it's the last task
+          if (tracker.tasks.length <= 1) return;
+
+          const updatedTasks = tracker.tasks.filter((t) => t.id !== taskId);
+          // Clean up gridState items that used the deleted task
+          const newGridState = { ...tracker.gridState };
+          Object.keys(newGridState).forEach((key) => {
+            if (newGridState[key] === taskId) delete newGridState[key];
+          });
+
+          // If active task was deleted, fallback to first available task
+          const newActiveId = tracker.activeTaskId === taskId ? updatedTasks[0].id : tracker.activeTaskId;
+
+          updateTracker({
+            tasks: updatedTasks,
+            activeTaskId: newActiveId,
+            gridState: newGridState,
+          });
         }}
         onAddTask={(newTask) => {
           updateTracker({
