@@ -1,6 +1,10 @@
-# Visual Goal Grid Tracker
+# Intuitive Goal Grid Tracker
 
-A gamified, visual progress tracking web app based on the tactile "squared tinting" book system. Track target hours for projects using interactive grid blocks.
+A motivation tracker, not a strict tracker app by definition. Helps with starting the task, thus helping with avoidance and similar dilemmas that delay our every days by our minds foolishness.  
+If you're tired of strict time manegment workflows, that emphasize the feeling of being offtrack/late thus enducing anxiety about your progress.
+Try this unrestricted tracker
+
+Track target hours for projects/studying/reading using this interactive tracker by setting your desired slices of Pomodoro cubes ex. 25 mins sessions and total hours to complete each subject.
 
 ---
 
