@@ -6,6 +6,9 @@ Try this unrestricted tracker
 
 Track target hours for projects/studying/reading using this interactive tracker by setting your desired slices of Pomodoro cubes ex. 25 mins sessions and total hours to complete each subject.
 
+Here >> 
+[![Live Demo](https://img.shields.io/badge/demo-live%20on%20Vercel-black?style=for-the-badge&logo=vercel)](https://zizi-mu.vercel.app/)
+
 ---
 
 ## 1. Main Working Area (The Grid)
