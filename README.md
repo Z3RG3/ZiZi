@@ -1,8 +1,9 @@
-# Intuitive Goal Grid Tracker
+# ZiZi — Intuitive Goal Grid Tracker
 
-A motivation tracker, not a strict tracker app by definition. Helps with starting the task, thus helping with avoidance and similar dilemmas that delay our every days by our minds foolishness.  
-If you're tired of strict time manegment workflows, that emphasize the feeling of being offtrack/late thus enducing anxiety about your progress.
-Try this unrestricted tracker
+
+A low-friction, visual motivation tracker designed to overcome task-initiation friction without the anxiety of rigid schedules or strict deadlines. Break big goals into bite-sized visual blocks and paint your progress as you go.
+
+> *A motivation tracker, not a strict tracker app by definition. It helps with starting the task, easing the avoidance and similar dilemmas that delay our everyday lives through our own minds' foolishness. If you're tired of rigid time-management workflows that emphasize the feeling of being off-track or late—inducing anxiety about your progress—try this unrestricted tracker.*
 
 Track target hours for projects/studying/reading using this interactive tracker by setting your desired slices of Pomodoro cubes ex. 25 mins sessions and total hours to complete each subject.
 
@@ -11,61 +12,38 @@ Here :
 [![Live Demo](https://img.shields.io/badge/demo-live%20on%20Vercel-black?style=for-the-badge&logo=vercel)](https://zizi-mu.vercel.app/)
 
 ------
+##Stack:
 
-## 1. Main Working Area (The Grid)
+[![Live Demo](https://img.shields.io/badge/demo-live%20on%20Vercel-black?style=for-the-badge&logo=vercel)](https://zizi-mu.vercel.app/)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
 
-- **Visual Concept:** A clean, rectangular grid styled like tinted graph paper. Each square represents a fixed unit of time ($x$ minutes), and the total number of squares represents your overall target for the project or week.
-- **Grid Mechanics:** Clicking or painting squares fills them in with the active color selected from the legend.
-- **Responsiveness:** Built with fluid layout containers (CSS Grid/Flexbox) so the grid scales smoothly across desktop and laptop screens without requiring custom canvas zoom controls.
 
-### Logic & Auto-Fit Calculator
-Instead of manual row and column configuration, the grid geometry is generated dynamically:
-
-1. **User Inputs:**
-   - **Total Goal:** e.g., $10\text{ hours}$ ($600\text{ minutes}$)
-   - **Unit Size ($x$):** e.g., $5\text{ mins}$, $10\text{ mins}$, or $25\text{ mins}$ per square
-   - **Target Aspect Ratio / Layout Preference:** e.g., Standard ($4:3$), Wide Banner ($16:9$), or Compact
-2. **Calculations:**
-   $$\text{Total Squares } (N) = \frac{\text{Total Goal (minutes)}}{\text{Unit Size } (x \text{ minutes})}$$
-3. **Grid Dimensions:**
-   - Programmatically determines columns ($X$) and rows ($Y$) such that:
-     $$X \times Y = N$$
-   - *Example:* A 10-hour goal ($600\text{ mins}$) with $x = 5\text{ mins/square}$ yields $N = 120\text{ squares}$:
-     - Layout option 1: $15 \text{ columns} \times 8 \text{ rows}$
-     - Layout option 2: $20 \text{ columns} \times 6 \text{ rows}$
+![ZiZi App Showcase](https://raw.githubusercontent.com/Z3RG3/ZiZi/main/showcase.png)
 
 ---
 
-## 2. Color Legend (Tasks / Days)
+## Quick Start (User Guide)
 
-- **Position:** Placed directly above the main working grid.
-- **Color Picker:** Palette of selectable color labels (5–7 preset swatches + custom color pickers).
-- **Categorization Twist:** Map colors either to specific days of the week or to distinct project tasks/subjects.
-- **Selection State:** Active color choice determines the fill color for clicked grid squares.
-
----
-
-## 3. Title & Header Info
-
-- **Title:** Custom project or weekly sprint title (e.g., *"Week 42: Data Pipeline Refactor"* or *"Q4 Design Sprint"*).
-- **Summary Metrics:** Live indicators showing completed blocks vs. remaining target blocks.
+1. **Set Your Goal:** Enter your target hours (e.g., `10 hrs`) and how much time each square represents (e.g., `5`, `15`, or `25 mins`). The grid dimensions auto-adjust to fit your goal.
+2. **Pick Your Palette:** Label your colors by **day of the week** (Monday–Sunday) or by **project task/subject** using the color legend above the grid.
+3. **Paint Your Progress:** Select an active color and click squares on the grid as you complete sessions. Your progress saves automatically in your browser (`localStorage`).
 
 ---
 
-## 4. Roadmap
+## Key Features
 
-### Implemented (MVP)
-- [x] Auto-Fit Grid generation calculator
-- [x] Customizable color palette picker (tasks/days)
-- [x] Interactive fill/unfill grid tiles
-- [x] Responsive container layout
-- [x] Local browser state persistence (`localStorage`)
+* **Dynamic Auto-Fit Grid:** Automatically calculates rows and columns from your total goal and time-slice unit.
+* **Dual-Mode Color Legend:** Track consistency across days of the week or visualize time distribution across multiple tasks.
+* **Zero-Setup Persistence:** Runs locally in the browser with automatic `localStorage` saving—no accounts or logins required.
+* **Responsive Layout:** Fluid CSS Grid scaling across ultrawide monitors, laptops, and smaller viewports.
 
-### Planned Enhancements
-- [ ] **Strict Mode:** Optional validation enforcing adjacency/weaving rules for consecutive days.
-- [ ] **Batch Session Logging:** Quick-add modal to log $N$ minutes at once instead of clicking individual tiles.
-- [ ] **Weekly Archives & History:** Review past completed grids like a GitHub commit graph.
-- [ ] **Export Options:** One-click PNG/SVG snapshot export.
+---
+
+## Architecture & Roadmap
+
+For the full mathematical breakdown of the Auto-Fit Calculator, component design, and upcoming features (like Strict Weaving Mode and PNG export), see the **[Technical Specifications](./specifications.md#intuitive-goal-grid-tracker)**.
 
 ---
 
