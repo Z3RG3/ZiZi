@@ -7,13 +7,8 @@ A low-friction, visual motivation tracker designed to overcome task-initiation f
 
 Track target hours for projects/studying/reading using this interactive tracker by setting your desired slices of Pomodoro cubes ex. 25 mins sessions and total hours to complete each subject.
 
-Here :
 
-[![Live Demo](https://img.shields.io/badge/demo-live%20on%20Vercel-black?style=for-the-badge&logo=vercel)](https://zizi-mu.vercel.app/)
-
-------
-
-## Stack:
+### Available here:
 
 [![Live Demo](https://img.shields.io/badge/demo-live%20on%20Vercel-black?style=for-the-badge&logo=vercel)](https://zizi-mu.vercel.app/)
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
