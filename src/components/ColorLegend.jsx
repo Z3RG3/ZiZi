@@ -22,20 +22,30 @@ export default function ColorLegend({ tasks, activeTaskId, onSelectTask, onUpdat
   };
 
   return (
-    <div style={{ display: 'flex', gap: '12px', margin: '20px 0', flexWrap: 'wrap', alignItems: 'center' }}>
+    <div style={{ display: 'flex', gap: '12px', margin: '30px 0 20px 0', flexWrap: 'wrap', alignItems: 'center' }}>
       {tasks.map((task) => {
         const isActive = task.id === activeTaskId;
         const isEditing = editingTaskId === task.id;
 
         return (
           <div key={task.id} style={{ position: 'relative' }}>
-            {/* Double-click popup editor for Rename, Color, & Delete ( [X] ) */}
+            {/* Always opens strictly below the task pill */}
             {isEditing && (
               <div style={{
-                position: 'absolute', bottom: '125%', left: '50%', transform: 'translateX(-50%)',
-                background: '#1e293b', padding: '10px', borderRadius: '10px',
-                boxShadow: '0 10px 25px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 20,
-                border: '1px solid #475569', width: '180px'
+                position: 'absolute',
+                top: '120%',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: '#1e293b',
+                padding: '10px',
+                borderRadius: '10px',
+                boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                zIndex: 20,
+                border: '1px solid #475569',
+                width: '180px'
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 'bold' }}>Edit Task</span>
