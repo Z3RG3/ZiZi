@@ -46,7 +46,8 @@ For the full mathematical breakdown of the Auto-Fit Calculator, component design
 ## Local Development
 
 ```bash
-git clone [https://github.com/Z3RG3/ZiZi.git](https://github.com/Z3RG3/ZiZi.git)
+
+git clone https://github.com/Z3RG3/ZiZi.git
 cd ZiZi
 npm install
 npm run dev
